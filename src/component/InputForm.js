@@ -1,15 +1,15 @@
 import { useState } from "react";
 
-const InputForm = (props) => {
+const InputForm = ({ notes, setNotes }) => {
   const [title, setTitle] = useState("");
 
-  // console.log(console.log(props.notes));
   const addNoteValue = () => {
-    props.setNotes([
-      ...props.notes,
+    setNotes([
+      ...notes,
       {
-        id: props.notes.length + 1,
-        title: title
+        id: notes.length + 1 + new Date() * Math.random(),
+        title: title,
+        haveSubNotes: false
       }
     ]);
   };
@@ -30,7 +30,6 @@ const InputForm = (props) => {
         placeholder="Write here"
         onChange={(e) => {
           setTitle(e.target.value);
-          console.log("title", e.target.value);
         }}
       />
 
