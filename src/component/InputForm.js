@@ -1,17 +1,55 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { context } from "../App";
 
-const InputForm = ({ notes, setNotes }) => {
+const InputForm = ({ setNotes, noteId }) => {
   const [title, setTitle] = useState("");
+  const { notesMain } = useContext(context);
+
+  const initialNote = {
+    id: new Date() * Math.random(),
+    title: title,
+    notes: [],
+    isShowAddSubButton: false,
+    isShowFuncButton: true
+  };
 
   const addNoteValue = () => {
-    setNotes([
-      ...notes,
-      {
-        id: notes.length + 1 + new Date() * Math.random(),
-        title: title,
-        haveSubNotes: false
+    if (notesMain.length) {
+      setNotes([...JSON.parse(JSON.stringify(notesMain)), initialNote]);
+      setTitle("");
+    } else {
+      setNotes([initialNote]);
+      setTitle("");
+    }
+  };
+
+  const onAddSubNote = () => {
+    const newNotes = [...JSON.parse(JSON.stringify(notesMain))];
+    addSubNotes(newNotes);
+    setNotes(newNotes);
+  };
+
+  const addSubNotes = (listOfNotes) => {
+    for (let note of listOfNotes) {
+      if (note.id === noteId) {
+        note.isShowAddSubButton = false;
+        note.notes = [
+          ...note.notes,
+          {
+            id: new Date() * Math.random(),
+            title: title,
+            notes: [],
+            isShowAddSubButton: false,
+            isShowFuncButton: false
+          }
+        ];
+        setTitle("");
+        return;
       }
-    ]);
+      if (note.notes.length > 0) {
+        addSubNotes(note.notes);
+      }
+    }
   };
 
   return (
@@ -23,17 +61,15 @@ const InputForm = ({ notes, setNotes }) => {
       <label htmlFor="note-input">Enter new note</label>
 
       <input
-        list="note-input"
-        id="note-input"
-        name="note-input"
         autoComplete="off"
         placeholder="Write here"
+        value={title}
         onChange={(e) => {
           setTitle(e.target.value);
         }}
       />
 
-      <button type="submit" onClick={addNoteValue}>
+      <button type="submit" onClick={noteId ? onAddSubNote : addNoteValue}>
         Add
       </button>
     </form>
